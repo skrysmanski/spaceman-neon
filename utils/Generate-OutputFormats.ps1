@@ -7,6 +7,9 @@ function Get-ThemeColors($ColorsFile) {
 }
 
 function Write-WindowsTerminalTheme($ThemeColors, [String] $OutputFile) {
+    # NOTE: We use a string here rather than an object (in conjunction with ConvertTo-Json) because
+    #   with an object we can't control the order of the properties (neither can we add comments)
+    #   to the output.
     $windowsTerminalTheme = @"
 {
     // From: https://github.com/skrysmanski/spaceman-neon
