@@ -1,0 +1,24 @@
+﻿{
+    // From: https://github.com/skrysmanski/spaceman-neon
+    "name" : "Spaceman Neon",
+
+    "background" : "#272936",
+    "foreground" : "#c1d0ed",
+
+    "black" : "#272936",
+    "brightBlack" : "#72719c",
+    "blue" : "#358dea",
+    "brightBlue" : "#6abeff",
+    "cyan" : "#09c5c4",
+    "brightCyan" : "#76e9fd",
+    "green" : "#62d196",
+    "brightGreen" : "#95ffa4",
+    "purple" : "#bd93f9",
+    "brightPurple" : "#ff79c6",
+    "red" : "#ff5458",
+    "brightRed" : "#ff8080",
+    "yellow" : "#ffb378",
+    "brightYellow" : "#ffe9aa",
+    "white" : "#c1d0ed",
+    "brightWhite" : "#fefefe"
+}
