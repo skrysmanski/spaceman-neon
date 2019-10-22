@@ -2,24 +2,72 @@
 
 $script:ErrorActionPreference = 'Stop'
 
-function Get-ThemeColors($ColorsFile) {
-    return Get-Content $ColorsFile -Encoding utf8 | ConvertFrom-Json
-}
+class Color {
+    [int] $Red
+    [int] $Green
+    [int] $Blue
 
-function ConvertFrom-HtmlColor($HtmlColor) {
-    if ($HtmlColor -match '^#([a-z0-9]{2})([a-z0-9]{2})([a-z0-9]{2})$') {
-        return @{
-            Red   = [int] "0x$($Matches[1])"
-            Green = [int] "0x$($Matches[2])"
-            Blue  = [int] "0x$($Matches[3])"
+    Color([string] $HtmlColor) {
+        if ($HtmlColor -match '^#([a-z0-9]{2})([a-z0-9]{2})([a-z0-9]{2})$') {
+            $this.Red   = [int] "0x$($Matches[1])"
+            $this.Green = [int] "0x$($Matches[2])"
+            $this.Blue  = [int] "0x$($Matches[3])"
+        }
+        else {
+            throw "Invalid HTML color: $HtmlColor"
         }
     }
-    else {
-        throw "Invalid HTML color: $HtmlColor"
+
+    [string] ToString() {
+        return ("#{0:x2}{1:x2}{2:x2}" -f $this.Red, $this.Green, $this.Blue)
     }
 }
 
-function Write-WindowsTerminalTheme($ThemeColors, [String] $OutputFile) {
+class TerminalColors {
+    [Color] $Black
+    [Color] $Red
+    [Color] $DarkRed
+    [Color] $Green
+    [Color] $DarkGreen
+    [Color] $Yellow
+    [Color] $DarkYellow
+    [Color] $Blue
+    [Color] $DarkBlue
+    [Color] $Magenta
+    [Color] $DarkMagenta
+    [Color] $Cyan
+    [Color] $DarkCyan
+    [Color] $Gray
+    [Color] $DarkGray
+    [Color] $White
+}
+
+function Get-ThemeColors([string] $ColorsFile) {
+    $themeColorsAsStrings = Get-Content $ColorsFile -Encoding utf8 | ConvertFrom-Json
+
+    $terminalColors = [TerminalColors]::new()
+
+    $terminalColors.Black       = [Color]::new($themeColorsAsStrings.Black)
+    $terminalColors.Red         = [Color]::new($themeColorsAsStrings.Red)
+    $terminalColors.DarkRed     = [Color]::new($themeColorsAsStrings.DarkRed)
+    $terminalColors.Green       = [Color]::new($themeColorsAsStrings.Green)
+    $terminalColors.DarkGreen   = [Color]::new($themeColorsAsStrings.DarkGreen)
+    $terminalColors.Yellow      = [Color]::new($themeColorsAsStrings.Yellow)
+    $terminalColors.DarkYellow  = [Color]::new($themeColorsAsStrings.DarkYellow)
+    $terminalColors.Blue        = [Color]::new($themeColorsAsStrings.Blue)
+    $terminalColors.DarkBlue    = [Color]::new($themeColorsAsStrings.DarkBlue)
+    $terminalColors.Magenta     = [Color]::new($themeColorsAsStrings.Magenta)
+    $terminalColors.DarkMagenta = [Color]::new($themeColorsAsStrings.DarkMagenta)
+    $terminalColors.Cyan        = [Color]::new($themeColorsAsStrings.Cyan)
+    $terminalColors.DarkCyan    = [Color]::new($themeColorsAsStrings.DarkCyan)
+    $terminalColors.Gray        = [Color]::new($themeColorsAsStrings.Gray)
+    $terminalColors.DarkGray    = [Color]::new($themeColorsAsStrings.DarkGray)
+    $terminalColors.White       = [Color]::new($themeColorsAsStrings.White)
+
+    return $terminalColors
+}
+
+function Write-WindowsTerminalTheme([TerminalColors] $ThemeColors, [String] $OutputFile) {
     # NOTE: We use a string here rather than an object (in conjunction with ConvertTo-Json) because
     #   with an object we can't control the order of the properties (neither can we add comments)
     #   to the output.
@@ -55,13 +103,12 @@ function Write-WindowsTerminalTheme($ThemeColors, [String] $OutputFile) {
     $output | Out-File $OutputFile -Encoding utf8 -NoNewline
 }
 
-function Write-WindowsConsoleRegFile($ThemeColors, [String] $OutputFile) {
-    function ConvertTo-RegValue($HtmlColor) {
-        $rgbColor = ConvertFrom-HtmlColor $HtmlColor
+function Write-WindowsConsoleRegFile([TerminalColors] $ThemeColors, [String] $OutputFile) {
+    function ConvertTo-RegValue([Color] $Color) {
 
-        $red = $rgbColor.Red.ToString('x2')
-        $green = $rgbColor.Green.ToString('x2')
-        $blue = $rgbColor.Blue.ToString('x2')
+        $red = $Color.Red.ToString('x2')
+        $green = $Color.Green.ToString('x2')
+        $blue = $Color.Blue.ToString('x2')
 
         return "dword:00$blue$green$red"
     }
@@ -92,42 +139,27 @@ Windows Registry Editor Version 5.00
     $output.Replace("`n", "`r`n") | Out-File $OutputFile -Encoding unicode
 }
 
-function Write-ItermColorsFile($ThemeColors, [String] $OutputFile) {
+function Write-ItermColorsFile([TerminalColors] $ThemeColors, [String] $OutputFile) {
     function ConvertTo-Component([int] $Color) {
         $value = [double]$Color / 255.0
         # NOTE: Using "$value" formats $value as invariant culture.
         return "$value"
     }
 
-    function ConvertTo-RedComponent($HtmlColor) {
-        $rgbColor = ConvertFrom-HtmlColor $HtmlColor
-        return ConvertTo-Component $rgbColor.Red
-    }
-
-    function ConvertTo-GreenComponent($HtmlColor) {
-        $rgbColor = ConvertFrom-HtmlColor $HtmlColor
-        return ConvertTo-Component $rgbColor.Green
-    }
-
-    function ConvertTo-BlueComponent($HtmlColor) {
-        $rgbColor = ConvertFrom-HtmlColor $HtmlColor
-        return ConvertTo-Component $rgbColor.Blue
-    }
-
-    function Get-ColorEntry([string] $Key, $HtmlColor) {
+    function Get-ColorEntry([string] $Key, [Color] $Color) {
         return @"
     <key>$Key</key>
     <dict>
         <key>Alpha Component</key>
         <real>1</real>
         <key>Blue Component</key>
-        <real>$(ConvertTo-BlueComponent $HtmlColor)</real>
+        <real>$(ConvertTo-Component $Color.Blue)</real>
         <key>Color Space</key>
         <string>sRGB</string>
         <key>Green Component</key>
-        <real>$(ConvertTo-GreenComponent $HtmlColor)</real>
+        <real>$(ConvertTo-Component $Color.Green)</real>
         <key>Red Component</key>
-        <real>$(ConvertTo-RedComponent $HtmlColor)</real>
+        <real>$(ConvertTo-Component $Color.Red)</real>
     </dict>
 "@
     }
@@ -269,7 +301,7 @@ $(Get-ColorEntry 'Link Color' $ThemeColors.Blue)
     $output.Replace('    ', "`t") | Out-File $OutputFile -Encoding ascii -NoNewline
 }
 
-function Write-VSCodeTerminalTheme($ThemeColors, [String] $OutputFile) {
+function Write-VSCodeTerminalTheme([TerminalColors] $ThemeColors, [String] $OutputFile) {
     # NOTE: We use a string here rather than an object (in conjunction with ConvertTo-Json) because
     #   with an object we can't control the order of the properties (neither can we add comments)
     #   to the output.
