@@ -305,13 +305,14 @@ function Write-VSCodeTerminalTheme($ThemeColors, [String] $OutputFile) {
 }
 
 $baseDir = "$PSScriptRoot/.."
+$outDir = "$baseDir/themes"
 
 $themeColors = Get-ThemeColors "$baseDir/colors.json"
 
-Write-WindowsTerminalTheme $themeColors "$baseDir/WindowsTerminal.json"
+Write-WindowsTerminalTheme $themeColors "$outDir/WindowsTerminal.json"
 
-Write-WindowsConsoleRegFile $themeColors "$baseDir/WindowsConsole.reg"
+Write-WindowsConsoleRegFile $themeColors "$outDir/WindowsConsole.reg"
 
-Write-ItermColorsFile $themeColors "$baseDir/SpacemanNeon.itermcolors"
+Write-ItermColorsFile $themeColors "$outDir/SpacemanNeon.itermcolors"
 
-Write-VSCodeTerminalTheme $themeColors "$baseDir/VSCodeTerminal.json"
+Write-VSCodeTerminalTheme $themeColors "$outDir/VSCodeTerminal.json"
