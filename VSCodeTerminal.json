@@ -1,0 +1,23 @@
+﻿    // put in your user settings
+    "workbench.colorCustomizations": {
+        "terminal.background":"#272936",
+        "terminal.foreground":"#c1d0ed",
+        "terminalCursor.background":"#c1d0ed",
+        "terminalCursor.foreground":"#c1d0ed",
+        "terminal.ansiBlack":"#272936",
+        "terminal.ansiBlue":"#358dea",
+        "terminal.ansiBrightBlack":"#72719c",
+        "terminal.ansiBrightBlue":"#6abeff",
+        "terminal.ansiBrightCyan":"#76e9fd",
+        "terminal.ansiBrightGreen":"#95ffa4",
+        "terminal.ansiBrightMagenta":"#ff79c6",
+        "terminal.ansiBrightRed":"#ff8080",
+        "terminal.ansiBrightWhite":"#fefefe",
+        "terminal.ansiBrightYellow":"#ffe9aa",
+        "terminal.ansiCyan":"#09c5c4",
+        "terminal.ansiGreen":"#62d196",
+        "terminal.ansiMagenta":"#bd93f9",
+        "terminal.ansiRed":"#ff5458",
+        "terminal.ansiWhite":"#c1d0ed",
+        "terminal.ansiYellow":"#ffb378"
+    }
