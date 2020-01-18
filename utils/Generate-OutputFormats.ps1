@@ -72,7 +72,7 @@ $outDir = "$baseDir/themes"
 
 $themeColors = Get-ThemeColors "$baseDir/colors.json"
 
-& $PSScriptRoot/theme-generators/README.ps1 $themeColors -OutputFile "$baseDir/README.md"
+& $PSScriptRoot/theme-generators/README.ps1 $themeColors -OutputFile "$baseDir/README.md" -RelativeColorBoxesFolder 'themes/color-boxes'
 
 & $PSScriptRoot/theme-generators/WindowsTerminal.ps1 $themeColors -OutputFile "$outDir/WindowsTerminal.json"
 

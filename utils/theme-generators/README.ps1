@@ -1,7 +1,9 @@
 ﻿param(
     $ThemeColors,
 
-    [String] $OutputFile
+    [String] $OutputFile,
+
+    [String] $RelativeColorBoxesFolder
 )
 
 $script:ErrorActionPreference = 'Stop'
@@ -59,32 +61,57 @@ function Get-HSLValue($color) {
     return [string]::Format([Globalization.CultureInfo]::InvariantCulture, "{0:0.}° {1:0.0}% {2:0.0}%", $h * 360, $s * 100, $l * 100)
 }
 
-function Get-ColorColumns($color) {
-    $hex = "``$color``"
-    $rgb = "``$($color.Red) $($color.Green) $($color.Blue)``"
-    $hsl = "``$(Get-HSLValue($color))``"
-    return "{0} | {1,-13} | {2}" -f $hex, $rgb, $hsl
+function Write-ColorBox([string] $OutputFile, $Color, [int] $Size = 20) {
+    $bitmap = [System.Drawing.Bitmap]::new($Size, $Size)
+
+    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+
+    # Border (primarily required for "white")
+    $graphics.Clear([System.Drawing.Color]::Black)
+    # The color
+    $theColor = [System.Drawing.Color]::FromArgb($Color.Red, $Color.Green, $Color.Blue)
+    $theBrush = [System.Drawing.SolidBrush]::new($theColor)
+    $graphics.FillRectangle($theBrush, 1, 1, $Size - 2, $Size - 2)
+
+    $graphics.Dispose()
+
+    $bitmap.Save($OutputFile, [System.Drawing.Imaging.ImageFormat]::Png)
+
+    $bitmap.Dispose()
+}
+
+function Get-ColorColumns($Color, [string] $ColorFileName) {
+    $hex = "``$Color``"
+    $rgb = "``$($Color.Red) $($Color.Green) $($Color.Blue)``"
+    $hsl = "``$(Get-HSLValue($Color))``"
+
+    $relativeColorBoxPath = "$RelativeColorBoxesFolder/$ColorFileName.png"
+    $absColorBoxPath = [System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($OutputFile), $relativeColorBoxPath)
+    Write-ColorBox $absColorBoxPath $Color
+    $colorBoxCode = "![$ColorFileName]($relativeColorBoxPath)"
+
+    return "{0} | {1,-13} | {2,-20} | {3}" -f $hex, $rgb, $hsl, $colorBoxCode
 }
 
 $colorPaletteCode = @"
-Palette      | Hex       | RGB           | HSL
----          | ---       | ---           | ---
-Black        | $(Get-ColorColumns($ThemeColors.Black))
-Red          | $(Get-ColorColumns($ThemeColors.Red))
-Dark Red     | $(Get-ColorColumns($ThemeColors.DarkRed))
-Green        | $(Get-ColorColumns($ThemeColors.Green))
-Dark Green   | $(Get-ColorColumns($ThemeColors.DarkGreen))
-Yellow       | $(Get-ColorColumns($ThemeColors.Yellow))
-Dark Yellow  | $(Get-ColorColumns($ThemeColors.DarkYellow))
-Blue         | $(Get-ColorColumns($ThemeColors.Blue))
-Dark Blue    | $(Get-ColorColumns($ThemeColors.DarkBlue))
-Magenta      | $(Get-ColorColumns($ThemeColors.Magenta))
-Dark Magenta | $(Get-ColorColumns($ThemeColors.DarkMagenta))
-Cyan         | $(Get-ColorColumns($ThemeColors.Cyan))
-Dark Cyan    | $(Get-ColorColumns($ThemeColors.DarkCyan))
-Gray         | $(Get-ColorColumns($ThemeColors.Gray))
-Dark Gray    | $(Get-ColorColumns($ThemeColors.DarkGray))
-White        | $(Get-ColorColumns($ThemeColors.White))
+Name         | Hex       | RGB           | HSL                  | Color
+---          | ---       | ---           | ---                  | ---
+Black        | $(Get-ColorColumns $ThemeColors.Black 'black')
+Red          | $(Get-ColorColumns $ThemeColors.Red 'red')
+Dark Red     | $(Get-ColorColumns $ThemeColors.DarkRed 'dark-red')
+Green        | $(Get-ColorColumns $ThemeColors.Green 'green')
+Dark Green   | $(Get-ColorColumns $ThemeColors.DarkGreen 'dark-green')
+Yellow       | $(Get-ColorColumns $ThemeColors.Yellow 'yellow')
+Dark Yellow  | $(Get-ColorColumns $ThemeColors.DarkYellow 'dark-yellow')
+Blue         | $(Get-ColorColumns $ThemeColors.Blue 'blue')
+Dark Blue    | $(Get-ColorColumns $ThemeColors.DarkBlue 'dark-blue')
+Magenta      | $(Get-ColorColumns $ThemeColors.Magenta 'magenta')
+Dark Magenta | $(Get-ColorColumns $ThemeColors.DarkMagenta 'dark-magenta')
+Cyan         | $(Get-ColorColumns $ThemeColors.Cyan 'cyan')
+Dark Cyan    | $(Get-ColorColumns $ThemeColors.DarkCyan 'dark-cyan')
+Gray         | $(Get-ColorColumns $ThemeColors.Gray 'gray')
+Dark Gray    | $(Get-ColorColumns $ThemeColors.DarkGray 'dark-gray')
+White        | $(Get-ColorColumns $ThemeColors.White 'white')
 "@
 
 $readmeContents = $readmeContents.Replace('{{ColorPalette}}', $colorPaletteCode)
