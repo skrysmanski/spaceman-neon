@@ -72,6 +72,8 @@ $outDir = "$baseDir/themes"
 
 $themeColors = Get-ThemeColors "$baseDir/colors.json"
 
+& $PSScriptRoot/theme-generators/README.ps1 $themeColors -OutputFile "$baseDir/README.md"
+
 & $PSScriptRoot/theme-generators/WindowsTerminal.ps1 $themeColors -OutputFile "$outDir/WindowsTerminal.json"
 
 & $PSScriptRoot/theme-generators/WindowsConsoleRegFile.ps1 $themeColors -OutputFile "$outDir/WindowsConsole.reg"
