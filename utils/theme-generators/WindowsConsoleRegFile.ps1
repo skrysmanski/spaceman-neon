@@ -1,4 +1,4 @@
-param(
+﻿param(
     $ThemeColors,
 
     [String] $OutputFile

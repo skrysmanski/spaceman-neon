@@ -1,5 +1,11 @@
 {
     "files.associations": {
         "WindowsTerminal.json": "jsonc"
+    },
+    "[powershell]": {
+        "files.encoding": "utf8bom"
+    },
+    "[markdown]": {
+        "files.encoding": "utf8bom"
     }
 }
