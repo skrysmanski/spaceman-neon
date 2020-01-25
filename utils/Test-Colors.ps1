@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env pwsh
+#!/usr/bin/env pwsh
 
 #
 # Allows you to view the 16 default colors that every terminal should support
