@@ -61,6 +61,23 @@ function Get-HSLValue($color) {
     return [string]::Format([Globalization.CultureInfo]::InvariantCulture, "{0:0.}° {1:0.0}% {2:0.0}%", $h * 360, $s * 100, $l * 100)
 }
 
+function Test-SystemDrawingAvailable() {
+    try {
+        $bitmap = [System.Drawing.Bitmap]::new($Size, $Size)
+    }
+    catch [System.Management.Automation.MethodInvocationException] {
+        return $false
+    }
+
+    $bitmap.Dispose()
+    return $true
+}
+
+$script:isSystemDrawingAvailable = Test-SystemDrawingAvailable
+if (-Not $script:isSystemDrawingAvailable) {
+    Write-Host -ForegroundColor Yellow '"System.Drawing" is not available. (You probably need to install "libgdiplus".) No color boxes will be generated.'
+}
+
 function Write-ColorBox([string] $OutputFile, $Color, [int] $Size = 20) {
     $bitmap = [System.Drawing.Bitmap]::new($Size, $Size)
 
@@ -86,8 +103,12 @@ function Get-ColorColumns($Color, [string] $ColorFileName) {
     $hsl = "``$(Get-HSLValue($Color))``"
 
     $relativeColorBoxPath = "$RelativeColorBoxesFolder/$ColorFileName.png"
-    $absColorBoxPath = [System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($OutputFile), $relativeColorBoxPath)
-    Write-ColorBox $absColorBoxPath $Color
+
+    if ($script:isSystemDrawingAvailable) {
+        $absColorBoxPath = [System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($OutputFile), $relativeColorBoxPath)
+        Write-ColorBox $absColorBoxPath $Color
+    }
+
     $colorBoxCode = "![$ColorFileName]($relativeColorBoxPath)"
 
     return "{0} | {1,-13} | {2,-20} | {3}" -f $hex, $rgb, $hsl, $colorBoxCode
