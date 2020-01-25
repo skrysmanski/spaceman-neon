@@ -63,6 +63,10 @@ function Get-HSLValue($color) {
 
 function Test-SystemDrawingAvailable() {
     try {
+        # Make sure all "System.Drawing" types are available (not always but sometimes required).
+        Add-Type -AssemblyName System.Drawing
+
+        # NOTE: On macOS/Linux this call will fail with an exception if libgdiplus is not installed on the system.
         $bitmap = [System.Drawing.Bitmap]::new(10, 10)
     }
     catch [System.Management.Automation.MethodInvocationException] {
