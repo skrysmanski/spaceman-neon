@@ -136,5 +136,4 @@ White        | $(Get-ColorColumns $ThemeColors.White 'white')
 "@
 
 $readmeContents = $readmeContents.Replace('{{ColorPalette}}', $colorPaletteCode)
-
-$readmeContents | Out-File $OutputFile -Encoding utf8 -NoNewline
+[IO.File]::WriteAllText($OutputFile, $readmeContents, [System.Text.Encoding]::UTF8)

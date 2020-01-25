@@ -37,5 +37,4 @@ $output = @"
 
 "@
 
-# NOTE: -NewLine prevent Out-File from appending a system-dependent newline at the end of the file.
-$output | Out-File $OutputFile -Encoding utf8 -NoNewline
+[IO.File]::WriteAllText($OutputFile, $output, [System.Text.Encoding]::UTF8)

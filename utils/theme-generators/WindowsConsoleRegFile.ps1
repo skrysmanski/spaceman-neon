@@ -35,6 +35,7 @@ Windows Registry Editor Version 5.00
 "ColorTable14"=$(ConvertTo-RegValue $ThemeColors.Yellow)
 "ColorTable15"=$(ConvertTo-RegValue $ThemeColors.White)
 "ScreenColors"=dword:00000007
+
 "@
 
-$output.Replace("`n", "`r`n") | Out-File $OutputFile -Encoding unicode
+[IO.File]::WriteAllText($OutputFile, $output.Replace("`n", "`r`n"), [System.Text.Encoding]::Unicode)
