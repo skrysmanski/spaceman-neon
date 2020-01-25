@@ -63,7 +63,7 @@ function Get-HSLValue($color) {
 
 function Test-SystemDrawingAvailable() {
     try {
-        $bitmap = [System.Drawing.Bitmap]::new($Size, $Size)
+        $bitmap = [System.Drawing.Bitmap]::new(10, 10)
     }
     catch [System.Management.Automation.MethodInvocationException] {
         return $false
